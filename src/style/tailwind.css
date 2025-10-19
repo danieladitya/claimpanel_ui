@@ -1,0 +1,180 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    /* Wrapper dropdown */
+    .action-menu {
+      @apply relative inline-block text-left;
+    }
+  
+    /* Trigger button (kebab) */
+    .action-menu-btn {
+      @apply p-1 rounded-full hover:bg-gray-100;
+    }
+  
+    .action-menu-btn svg {
+      @apply w-5 h-5 text-gray-600;
+    }
+  
+    /* Dropdown container */
+    .action-menu-dropdown {
+      @apply absolute right-0 z-10 mt-2 origin-top-right bg-white rounded-md shadow-lg w-28 ring-1 ring-black ring-opacity-5 focus:outline-none;
+    }
+  
+    /* Item di dropdown */
+    .action-menu-item {
+      @apply block w-full px-4 py-2 text-xs text-left hover:bg-gray-50;
+    }
+  
+    .action-menu-item-primary {
+      @apply text-indigo-600 hover:bg-indigo-50;
+    }
+    .action-menu-item-secondary {
+      @apply text-gray-600 hover:bg-gray-50;
+    }
+    .action-menu-item-danger {
+      @apply text-red-600 hover:bg-red-50;
+    }
+    
+  /* === BUTTONS === */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium transition rounded-lg;
+  }
+
+  .btn-primary {
+    @apply px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700;
+  }
+
+  .btn-success {
+    @apply text-white bg-green-600 hover:bg-green-700;
+  }
+
+  .btn-danger {
+    @apply text-white bg-red-600 hover:bg-red-700;
+  }
+
+  .btn-warning {
+    @apply text-sm text-white bg-yellow-500 hover:bg-yellow-600;
+  }
+
+  .btn-secondary {
+    @apply text-white bg-gray-600 hover:bg-gray-700;
+  }
+
+  /* Outline variants */
+  .btn-outline {
+    @apply px-4 py-2 font-medium transition border rounded-lg;
+  }
+  .btn-outline-primary {
+    @apply text-blue-600 border-blue-600 hover:bg-blue-600 hover:text-white;
+  }
+  .btn-outline-success {
+    @apply text-green-600 border-green-600 hover:bg-green-600 hover:text-white;
+  }
+  .btn-outline-danger {
+    @apply text-red-600 border-red-600 hover:bg-red-600 hover:text-white;
+  }
+  .btn-outline-warning {
+    @apply text-yellow-500 border-yellow-500 hover:bg-yellow-500 hover:text-black;
+  }
+  .btn-outline-secondary {
+    @apply text-gray-600 border-gray-600 hover:bg-gray-600 hover:text-white;
+  }
+
+/* === FORM CONTROL === */
+.form-control {
+  @apply w-full px-2 py-1.5 text-sm border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+.form-title {
+  @apply block mb-1 text-sm text-gray-700
+}
+  /* === GRID ala Bootstrap === */
+  .row {
+    @apply flex flex-wrap -mx-2;
+  }
+  .col {
+    @apply flex-1 px-2;
+  }
+
+  /* Col fixed (1-12) */
+  .col-1 { @apply w-1/12 px-2; }
+  .col-2 { @apply w-2/12 px-2; }
+  .col-3 { @apply w-3/12 px-2; }
+  .col-4 { @apply w-4/12 px-2; }
+  .col-5 { @apply w-5/12 px-2; }
+  .col-6 { @apply w-6/12 px-2; }
+  .col-7 { @apply w-7/12 px-2; }
+  .col-8 { @apply w-8/12 px-2; }
+  .col-9 { @apply w-9/12 px-2; }
+  .col-10 { @apply w-10/12 px-2; }
+  .col-11 { @apply w-11/12 px-2; }
+  .col-12 { @apply w-full px-2; }
+
+  /* Responsive (sm, md, lg, xl) */
+  @screen sm {
+    .col-sm-6 { @apply w-6/12 px-2; }
+    .col-sm-12 { @apply w-full px-2; }
+  }
+  @screen md {
+    .col-md-4 { @apply w-4/12 px-2; }
+    .col-md-6 { @apply w-6/12 px-2; }
+    .col-md-12 { @apply w-full px-2; }
+  }
+  @screen lg {
+    .col-lg-3 { @apply w-3/12 px-2; }
+    .col-lg-4 { @apply w-4/12 px-2; }
+    .col-lg-6 { @apply w-6/12 px-2; }
+    .col-lg-12 { @apply w-full px-2; }
+  }
+  @screen xl {
+    .col-xl-2 { @apply w-2/12 px-2; }
+    .col-xl-3 { @apply w-3/12 px-2; }
+    .col-xl-4 { @apply w-4/12 px-2; }
+    .col-xl-6 { @apply w-6/12 px-2; }
+    .col-xl-12 { @apply w-full px-2; }
+  }
+
+  /* === TABLE === */
+  .table {
+    @apply w-full text-left border-collapse;
+  }
+  .table th {
+    @apply px-4 py-2 font-medium text-gray-700 bg-gray-100 border-b;
+  }
+  .table td {
+    @apply px-4 py-2 border-b;
+  }
+  .table-striped tbody tr:nth-child(even) {
+    @apply bg-gray-50;
+  }
+  .table-hover tbody tr:hover {
+    @apply bg-gray-100;
+  }
+
+  /*========CARD =======*/
+  .card {
+    @apply bg-white border border-gray-200 rounded-lg shadow-sm;
+  }
+
+  .card-body {
+    @apply p-4;
+  }
+
+  .card-header {
+    @apply px-4 py-2 font-semibold text-gray-700 border-b border-gray-200;
+  }
+
+  .card-footer {
+    @apply px-4 py-2 text-sm text-gray-600 border-t border-gray-200 bg-gray-50;
+  }
+
+  .card-title {
+    @apply text-lg font-bold text-gray-800;
+  }
+
+  .card-subtitle {
+    @apply text-sm text-gray-500;
+  }
+}
