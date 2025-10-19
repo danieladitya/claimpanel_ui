@@ -1,5 +1,6 @@
 import { ref, computed, Ref } from 'vue'
 import { INITIAL_FILTERS, INITIAL_RULE } from '@/utils/constants'
+import api from '@/services/api';
 
 export interface CrossCheckRule {
   id: string | null;
@@ -114,100 +115,136 @@ export function useCrossCheckRules() {
     deletingRuleId.value = null
   }
 
+  // async function fetchRules() {
+   
+  //   loading.value = true
+  //   error.value = null
+  //   try {
+  //     // Replace with actual API call
+  //     // const response = await api.get('/cross-check-rules')
+  //     // rules.value = response.data
+      
+  //     // Mock data for demonstration
+  //     rules.value = [
+  //       {
+  //         id: '1',
+  //         rule_name: 'Diabetes Medication Check',
+  //         rule_description: 'Ensure diabetes patients have appropriate medications',
+  //         trigger_code_id: 'E11',
+  //         trigger_code_system: 'ICD-10',
+  //         required_code_system: 'ATC',
+  //         required_mode: 'any',
+  //         required_codes: ['A10BA', 'A10BB', 'A10AC'],
+  //         required_n: 1,
+  //         condition_json: { age: { min: 18 } },
+  //         severity: 'error',
+  //         message: 'Diabetes diagnosis requires appropriate diabetes medication',
+  //         active: true,
+  //         version_no: 1,
+  //         gcrule_type: 'code',
+  //         created_date: '2024-01-15T10:30:00Z',
+  //         updated_date: '2024-01-15T10:30:00Z'
+  //       },
+  //       {
+  //         id: '2',
+  //         rule_name: 'Hypertension Follow-up',
+  //         rule_description: 'Check hypertension patients have follow-up documentation',
+  //         trigger_code_id: 'I10',
+  //         trigger_code_system: 'ICD-10',
+  //         required_code_system: 'DOC',
+  //         required_mode: 'all',
+  //         required_codes: ['BP_RECORD', 'FOLLOWUP_NOTE'],
+  //         required_n: 2,
+  //         condition_json: null,
+  //         severity: 'warning',
+  //         message: 'Hypertension diagnosis requires blood pressure recording and follow-up note',
+  //         active: true,
+  //         version_no: 1,
+  //         gcrule_type: 'document',
+  //         created_date: '2024-01-10T14:20:00Z',
+  //         updated_date: '2024-01-12T09:15:00Z'
+  //       }, 
+  //       {
+  //         id: '3',
+  //         rule_name: 'Kelengkapan Dokumen Diabetes',
+  //         rule_description: 'Pastikan dokumentasi lengkap untuk pasien diabetes',
+  //         trigger_code_id: 'E11',
+  //         trigger_code_system: 'ICD-10',
+  //         required_code_system: 'DOC',
+  //         required_mode: 'all',
+  //         required_codes: ['medical_record', 'lab_result', 'progress_note'],
+  //         required_n: 3,
+  //         condition_json: null,
+  //         severity: 'warning',
+  //         message: 'Pasien diabetes memerlukan rekam medis lengkap, hasil laboratorium, dan catatan perkembangan',
+  //         active: true,
+  //         version_no: 1,
+  //         gcrule_type: 'document',
+  //         created_date: '2024-01-20T08:15:00Z',
+  //         updated_date: '2024-01-20T08:15:00Z'
+  //       },
+  //       {
+  //         id: '4', 
+  //         rule_name: 'Dokumen Pre-Operasi',
+  //         rule_description: 'Kelengkapan dokumen sebelum tindakan operasi',
+  //         trigger_code_id: 'Z01.81',
+  //         trigger_code_system: 'ICD-10',
+  //         required_code_system: 'DOC',
+  //         required_mode: 'all',
+  //         required_codes: ['consent_form', 'lab_result', 'radiology_report'],
+  //         required_n: 3,
+  //         condition_json: { procedure_type: 'surgical' },
+  //         severity: 'error',
+  //         message: 'Tindakan operasi memerlukan persetujuan, hasil lab, dan laporan radiologi',
+  //         active: true,
+  //         version_no: 1,
+  //         gcrule_type: 'document',
+  //         created_date: '2024-01-18T14:30:00Z',
+  //         updated_date: '2024-01-18T14:30:00Z'
+  //       }
+  //     ]
+  //   } catch (err) {
+  //     error.value = 'Failed to fetch rules: ' + (err as Error).message
+  //   } finally {
+  //     loading.value = false
+  //   }
+  // }
+
   async function fetchRules() {
     loading.value = true
     error.value = null
     try {
-      // Replace with actual API call
-      // const response = await api.get('/cross-check-rules')
-      // rules.value = response.data
+      const response = await api.get('/cross-check-rules')
       
-      // Mock data for demonstration
-      rules.value = [
-        {
-          id: '1',
-          rule_name: 'Diabetes Medication Check',
-          rule_description: 'Ensure diabetes patients have appropriate medications',
-          trigger_code_id: 'E11',
-          trigger_code_system: 'ICD-10',
-          required_code_system: 'ATC',
-          required_mode: 'any',
-          required_codes: ['A10BA', 'A10BB', 'A10AC'],
-          required_n: 1,
-          condition_json: { age: { min: 18 } },
-          severity: 'error',
-          message: 'Diabetes diagnosis requires appropriate diabetes medication',
-          active: true,
-          version_no: 1,
-          gcrule_type: 'code',
-          created_date: '2024-01-15T10:30:00Z',
-          updated_date: '2024-01-15T10:30:00Z'
-        },
-        {
-          id: '2',
-          rule_name: 'Hypertension Follow-up',
-          rule_description: 'Check hypertension patients have follow-up documentation',
-          trigger_code_id: 'I10',
-          trigger_code_system: 'ICD-10',
-          required_code_system: 'DOC',
-          required_mode: 'all',
-          required_codes: ['BP_RECORD', 'FOLLOWUP_NOTE'],
-          required_n: 2,
-          condition_json: null,
-          severity: 'warning',
-          message: 'Hypertension diagnosis requires blood pressure recording and follow-up note',
-          active: true,
-          version_no: 1,
-          gcrule_type: 'document',
-          created_date: '2024-01-10T14:20:00Z',
-          updated_date: '2024-01-12T09:15:00Z'
-        }, 
-        {
-          id: '3',
-          rule_name: 'Kelengkapan Dokumen Diabetes',
-          rule_description: 'Pastikan dokumentasi lengkap untuk pasien diabetes',
-          trigger_code_id: 'E11',
-          trigger_code_system: 'ICD-10',
-          required_code_system: 'DOC',
-          required_mode: 'all',
-          required_codes: ['medical_record', 'lab_result', 'progress_note'],
-          required_n: 3,
-          condition_json: null,
-          severity: 'warning',
-          message: 'Pasien diabetes memerlukan rekam medis lengkap, hasil laboratorium, dan catatan perkembangan',
-          active: true,
-          version_no: 1,
-          gcrule_type: 'document',
-          created_date: '2024-01-20T08:15:00Z',
-          updated_date: '2024-01-20T08:15:00Z'
-        },
-        {
-          id: '4', 
-          rule_name: 'Dokumen Pre-Operasi',
-          rule_description: 'Kelengkapan dokumen sebelum tindakan operasi',
-          trigger_code_id: 'Z01.81',
-          trigger_code_system: 'ICD-10',
-          required_code_system: 'DOC',
-          required_mode: 'all',
-          required_codes: ['consent_form', 'lab_result', 'radiology_report'],
-          required_n: 3,
-          condition_json: { procedure_type: 'surgical' },
-          severity: 'error',
-          message: 'Tindakan operasi memerlukan persetujuan, hasil lab, dan laporan radiologi',
-          active: true,
-          version_no: 1,
-          gcrule_type: 'document',
-          created_date: '2024-01-18T14:30:00Z',
-          updated_date: '2024-01-18T14:30:00Z'
-        }
-      ]
+      // Transform data sesuai struktur response baru
+      rules.value = response.data.data.map(rule => ({
+        id: rule.id,
+        rule_no: rule.rule_no,
+        rule_name: rule.rule_name,
+        rule_description: rule.rule_description,
+        trigger_code_id: rule.trigger_code_id,
+        trigger_code_system: rule.code_system, // dari code_system
+        required_code_system: rule.triger_gccode_system,
+        required_mode: rule.required_mode, // dari required_mode
+        required_codes: rule.required_codes,
+        required_n: rule.required_n,
+        condition_json: rule.condition_json,
+        severity: rule.severity, // dari severity
+        message: rule.message,
+        active: rule.is_active,
+        version_no: 1, // default value
+        gcrule_type: 'code', // default value, bisa disesuaikan
+        created_date: rule.created_date,
+        updated_date: rule.updated_date || rule.created_date
+      }))
+      
     } catch (err) {
-      error.value = 'Failed to fetch rules: ' + (err as Error).message
+      error.value = 'Failed to fetch rules: ' + (err.message || err)
+      console.error('Error fetching rules:', err)
     } finally {
       loading.value = false
     }
   }
-
   async function createRule(ruleData: CrossCheckRule) {
     try {
       // Replace with actual API call
