@@ -25,12 +25,12 @@
         <span class="text-red-800">{{ error }}</span>
       </div>
     </div>
-
-    <!-- Filter Component -->
+<!-- 
+     Filter Component  
     <CrossCheckRulesFilter
       :filters="filters"
       @update:filters="updateFilters"
-    />
+    /> -->
 
     <!-- Table Component -->
     <CrossCheckRulesTable

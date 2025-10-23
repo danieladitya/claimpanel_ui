@@ -15,27 +15,7 @@ export interface Filters {
   active: string;
 }
 
-export interface CrossCheckRule {
-  id: string | null;
-  rule_name: string;
-  rule_description: string;
-  trigger_code_id: string;
-  trigger_code_system: string;
-  required_code_system: string;
-  required_mode: string;
-  required_codes: string[];
-  required_n: number;
-  condition_json: any;
-  severity: string;
-  message: string;
-  active: boolean;
-  version_no: number;
-  gcrule_type: string;
-  created_by?: number | null;
-  created_date?: string | null;
-  updated_by?: number | null;
-  updated_date?: string | null;
-}
+ 
 
 // Document types based on your table
 export interface DocumentType {

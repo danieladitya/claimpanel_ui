@@ -1,45 +1,50 @@
 <template>
     <div class="overflow-hidden bg-white rounded-lg shadow-md">
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
+      <div class="overflow-x-auto card">
+        <div class="card-body">
+        <table class="table">
+          <thead>
             <tr>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              
+              <th>
                 Rule Name
               </th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              <th>
                 Trigger Code
               </th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              <th>
                 Required Mode
               </th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              <th>
                 Severity
               </th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              <th>
                 Type
               </th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              <th>
                 Status
               </th>
-              <th class="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+              <th>
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             <tr 
               v-for="rule in rules" 
               :key="rule.id" 
               class="transition-colors hover:bg-gray-50"
             >
+            
               <td class="px-6 py-4 whitespace-nowrap">
+                
                 <div class="text-sm font-medium text-gray-900">{{ rule.rule_name }}</div>
                 <div class="max-w-xs text-sm text-gray-500 truncate">{{ rule.rule_description }}</div>
+                <div class="text-sm text-gray-500 font-12 ">    {{ rule.rule_no }}</div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="text-sm text-gray-900">{{ rule.trigger_code_id }}</div>
-                <div class="text-sm text-gray-500">{{ rule.trigger_code_system }}</div>
+                <div class="text-sm text-gray-500">{{ rule.code_system }}</div>
               </td>
               <td class="px-6 py-4 text-sm text-gray-900 whitespace-nowrap">
                 {{ rule.required_mode }}
@@ -54,17 +59,17 @@
             <td class="px-6 py-4 whitespace-nowrap">
               <span :class="[
                 'px-2 py-1 text-xs font-medium rounded-full',
-                rule.gcrule_type === 'code' 
+                rule.gc_required_type === 'code' 
                   ? 'bg-blue-100 text-blue-800' 
                   : 'bg-green-100 text-green-800'
               ]">
-                {{ rule.gcrule_type === 'code' ? 'Kode Medis' : 'Dokumen' }}
+                {{ rule.required_type }}
               </span>
             </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <Badge 
-                  :type="rule.active ? 'success' : 'error'" 
-                  :label="rule.active ? 'Active' : 'Inactive'" 
+                  :type="rule.is_active ? 'success' : 'error'" 
+                  :label="rule.is_active ? 'Active' : 'Inactive'" 
                 />
               </td>
               <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
@@ -74,7 +79,7 @@
                     class="text-indigo-600 transition-colors hover:text-indigo-900"
                     title="Edit Rule"
                   >
-                    <PencilIcon class="w-5 h-5" />
+                    <PencilSquareIcon class="w-5 h-5" />
                   </button>
                   <button
                     @click="$emit('delete', rule.id)"
@@ -96,7 +101,7 @@
           </tbody>
         </table>
       </div>
-  
+    </div>
       <!-- Empty State -->
       <div v-if="rules.length === 0 && !loading" class="py-12 text-center">
         <svg class="w-12 h-12 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,37 +129,39 @@
   <script setup lang="ts">
   import { type PropType } from 'vue'
   import Badge from '@/components/ui/Badge.vue'
-  import type { CrossCheckRule } from '@/composables/useCrossCheckRules'
+  import type { useCrossCheckRules } from '@/composables/useCrossCheckRules'
+  import { ICrossCheckRules } from '../../interface/ICrossCheckRules';
+  import { TrashIcon, EyeIcon, PencilSquareIcon } from '@heroicons/vue/24/outline';
+     
+  // // Icons
+  // const PencilIcon = {
+  //   template: `
+  //     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  //       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+  //     </svg>
+  //   `
+  // }
   
-  // Icons
-  const PencilIcon = {
-    template: `
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-      </svg>
-    `
-  }
+  // const TrashIcon = {
+  //   template: `
+  //     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  //       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+  //     </svg>
+  //   `
+  // }
   
-  const TrashIcon = {
-    template: `
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-      </svg>
-    `
-  }
-  
-  const EyeIcon = {
-    template: `
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-      </svg>
-    `
-  }
+  // const EyeIcon = {
+  //   template: `
+  //     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  //       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+  //       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+  //     </svg>
+  //   `
+  // }
   
   defineProps({
     rules: {
-      type: Array as PropType<CrossCheckRule[]>,
+      type: Array as PropType<ICrossCheckRules[]>,
       default: () => []
     },
     loading: {
@@ -168,8 +175,8 @@
   })
   
   defineEmits<{
-    edit: [rule: CrossCheckRule]
+    edit: [rule: ICrossCheckRules]
     delete: [id: string]
-    view: [rule: CrossCheckRule]
+    view: [rule: ICrossCheckRules]
   }>()
   </script>
