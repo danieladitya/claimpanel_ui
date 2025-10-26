@@ -6,8 +6,10 @@ import Settings from '@/views/Settings.vue'
 import Claim from '@/views/ClaimList.vue'
 import Claimdetail from '@/views/ClaimDetail.vue'
 import Login from '@/views/Login.vue'
-import SettingTypeDocument from '@/views/SettingTypeDocument.vue'
+import MasterDocument from '@/views/MasterDocument.vue'
 import CrossCheckRulesView from '@/views/CrossCheckRulesView.vue'
+import MasterPayor from '@/views/MasterPayor.vue'
+
 const routes = [
   
   {
@@ -56,15 +58,20 @@ const routes = [
     meta: { requiresAuth: true }
   }, 
   {
-    path: '/admin/settings/document_type', 
-    name: 'document-type', 
-    component: SettingTypeDocument
+    path: '/admin/settings/master_document', 
+    name: 'mst_document', 
+    component: MasterDocument
   }, 
   {
     path: '/admin/settings/cross_check_rules',
     name: 'crosscheckrules',
     component: CrossCheckRulesView
-  }
+  },
+  {
+    path: '/admin/settings/master_payor',
+    name: 'mst_payor',
+    component: MasterPayor
+  },
 ]
 
 const router = createRouter({

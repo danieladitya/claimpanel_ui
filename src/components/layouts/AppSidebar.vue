@@ -131,7 +131,8 @@ export default {
           icon: CogIcon,
           children: [
             { name: 'User', path: '/admin/settings/users' },
-            { name: 'Jenis Berkas', path: '/admin/settings/document_type' },
+            { name: 'Dokumen Klaim', path: '/admin/settings/master_document' },
+            { name: 'Penjamin Klaim', path: '/admin/settings/master_payor' },
             {name: 'Aturan Cross Check', path: '/admin/settings/cross_check_rules' }
           ]
         }
