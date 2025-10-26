@@ -132,7 +132,7 @@ export default {
           children: [
             { name: 'User', path: '/admin/settings/users' },
             { name: 'Dokumen Klaim', path: '/admin/settings/master_document' },
-            { name: 'Penjamin Klaim', path: '/admin/settings/master_payor' },
+            { name: 'Penjamin Bayar', path: '/admin/settings/master_payor' },
             {name: 'Aturan Cross Check', path: '/admin/settings/cross_check_rules' }
           ]
         }
