@@ -45,7 +45,7 @@
 
 /* Primary Button */
 .btn-primary {
-  @apply text-white bg-blue-700 btn hover:bg-blue-800 focus:ring-blue-300;
+  @apply text-white bg-blue-600 btn hover:bg-blue-800 focus:ring-blue-300;
 }
 
 /* Secondary Button */

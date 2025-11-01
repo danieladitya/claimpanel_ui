@@ -1,86 +1,156 @@
-<script setup lang="ts">
-import ClaimStatusBadge from '@/components/claim/ClaimStatusBadge.vue'
-import IClaim from '@/interface/Iclaim';
-import { formatDateForTable } from '../../utils/dataHelper';
-
-defineProps<{
-    claims : IClaim[]
-}>()
-</script>
-
-<template>  <div class="overflow-x-auto bg-white border rounded-lg shadow-sm">
-  <table class="table text-sm text-gray-600 table-striped">
-    <thead class="text-xs text-gray-500 uppercase bg-gray-50">
-      <tr>
-        <th class="px-6 py-3">No.Klaim</th>
-        <th class="px-6 py-3">SEP dan No. Kartu</th>
-        <th class="px-6 py-3">Pasien</th>
-        <th class="px-6 py-3">Tanggal SEP</th>
-        <th class="px-6 py-3">Status File</th>
-        <th class="px-6 py-3">Status Klaim</th>
-        <th class="px-6 py-3 text-right">Aksi</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="claim in claims"
-        :key="claim.id"
-        class="border-t hover:bg-gray-50"
-      >
-        <td class="px-6 py-3 font-medium text-gray-900">
-          {{ claim.claim_number }}
-        </td>
-        <td class="px-6 py-3 font-mono text-xs text-gray-500">
-         <p>{{ claim.sep_number }}</p> 
-          {{ claim?.sep_info?.data?.response?.peserta?.noKartu}}
-             
-        </td>
-        <td class="px-6 py-3">
-          <div>
-            <div class="font-medium text-gray-900">
-              {{ claim?.sep_info?.data?.response?.peserta?.nama }}
-
-              <!-- {{ getPatientName(claim.sep_info) }} -->
-            </div>
-            <div class="text-xs text-gray-500">
-              <p class="font-mono text-xs text-gray-500">{{ claim?.sep_info?.data?.response?.peserta?.noMr}} </p>
-               
-            </div>
-          </div>
-        </td>
-        <td class="px-6 py-3">
-          {{ claim?.sep_info?.data?.response?.tglSep }}
-          <!-- {{ formatDate(claim.created_at) }} -->
-        </td>
-        <td class="px-6 py-3">
-          <span 
-            class="px-2 py-1 text-xs rounded-full"
-            :class="{
-              'bg-green-100 text-green-800': claim.claim_file_status === 'uploaded',
-              'bg-yellow-100 text-yellow-800': claim.claim_file_status === 'pending',
-              'bg-red-100 text-red-800': claim.claim_file_status === 'rejected',
-              'bg-gray-100 text-gray-800': !claim.claim_file_status
-            }"
-          >
-            {{ claim.claim_file_status || 'Belum upload' }}
-          </span>
-        </td>
-        <td class="px-6 py-3">
-          <ClaimStatusBadge :status="claim.claim_status" />
-        </td>
-        <td class="px-6 py-3 space-x-2 text-right">
-          <router-link class="px-3 py-1 text-xs text-gray-600 rounded bg-gray-50 hover:bg-gray-100"  :to="`/admin/claims/${claim.id}`">Detail</router-link>
+<template>
+  <div>
+     <!-- Loading State -->
+      <div v-if="loading" class="loading">
+      <p>Loading ...</p>
+      </div>
+      <!-- Error State -->
+      <div v-else-if="error" class="error">
+        <p>Error loading : {{ error }}</p>
+        <button @click="fetchData(currentPage, 50)">Retry</button>
+      </div>
+     
+      <!-- Document Table -->
+      <div v-else>
+      <table class="table table-compact">
+        <thead>
+          <tr>
+         
+            <th>Tanggal klaim</th>
+            <th>Nomor klaim</th>
+            <th>Pasien</th>
+            <th>Jenis Layanan</th>
+            <th>Status</th>
             
-<!--           
-          <button 
-            class="px-3 py-1 text-xs text-gray-600 rounded bg-gray-50 hover:bg-gray-100"
-            @click="$emit('edit-claim', claim)"
-          >
-            Edit
-          </button> -->
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in claims" :key="row.id" class="document-row">
+             <td>{{ row.claim_date }}</td>
+              <td>{{ row.claim_number }}
+                <p> {{ row.claim_payor_number }}</p>
+              </td>
+              <td>
+                {{ row.patient_name }}
+              </td>
+              <td>
+                  {{ row.claim_service_type }} 
+              </td>
+              <td>{{ row.claim_status }}</td>
+              <td>
+                <!-- PERBAIKI: Emit event edit -->
+                <button @click="$emit('edit', row)" class="btn btn-sm">
+                      <PencilSquareIcon class="w-4 h-4" />
+                  </button>
+                   <button @click="$emit('delete', row.id)" class="btn btn-sm ">
+                      <TrashIcon class="w-4 h-4" />
+                  </button>
+              </td>
+          </tr>
+          </tbody>
+      </table>
+    <!-- Pagination -->
+    <div v-if="pagination && claims.length > 0" class="pagination">
+      <button 
+        @click="goToPage(currentPage - 1)" 
+        :disabled="!hasPrevious || loading"
+        class="pagination-btn"
+      >
+        Previous
+      </button>
+      
+      <span class="page-info">
+        Page {{ currentPage }} of {{ totalPages }} ({{ totaldata }} total)
+      </span>
+      
+      <button 
+        @click="goToPage(currentPage + 1)" 
+        :disabled="!hasNext || loading"
+        class="pagination-btn"
+      >
+        Next
+      </button>
+    </div>
+      </div>
+  </div>
 </template>
+
+<script lang="ts" setup> 
+import { useClaims } from '@/composables/claims';
+import { onMounted } from 'vue';
+import { PencilSquareIcon, TrashIcon } from "@heroicons/vue/24/outline";
+
+const props = defineProps({
+  claims: {
+    type: Array,
+    required: true
+  }, 
+  loading : {
+    type: Boolean,
+    required: true
+  }
+});
+
+const emit = defineEmits(['edit', 'delete']);
+
+
+const {
+    claims, 
+    loading : internalLoading,
+    error,
+    fetchData,
+    totaldata,
+    currentPage,
+    totalPages,
+    hasNext,
+    hasPrevious,
+    pagination, 
+    createData,
+    updateData,
+    deleteData,
+    saving
+}= useClaims();
+
+const isLoading =props.loading || internalLoading.value
+onMounted(() => {
+    fetchData(1, 50);
+});
+
+const goToPage = (page: number) => {
+  if(page >= 1 || page <= totalPages.value) {
+    fetchData(page, 50);
+  }
+};
+
+
+
+</script>
+<style scoped>
+.loading, .error {
+text-align: center;
+padding: 40px;
+}
+
+.error {
+color: #d32f2f;
+}
+
+.status {
+padding: 4px 8px;
+border-radius: 12px;
+font-size: 12px;
+font-weight: 500;
+}
+
+.status.active {
+background: #e8f5e8;
+color: #2e7d32;
+}
+
+.status.inactive {
+background: #ffebee;
+color: #c62828;
+}
+
+</style>
