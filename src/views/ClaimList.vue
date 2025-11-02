@@ -12,11 +12,11 @@
                <div class="flex space-x-2">
                 <button
                   @click="openSyncModal"
-                class="btn btn-primary btn-sm flex items-center gap-2">
+                class="flex items-center gap-2 btn btn-primary btn-sm">
                  <ArrowPathIcon class="w-4 h-4"  />V-Claim
                 </button>
                 <button 
-                class="btn btn-primary btn-sm flex items-center gap-2"
+                class="flex items-center gap-2 btn btn-primary btn-sm"
                   @click="openAddModal"
                   :disabled="loading"
                 >

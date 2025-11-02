@@ -4,7 +4,7 @@ import Users from '@/views/Users.vue'
 import Products from '@/views/Products.vue'
 import Settings from '@/views/Settings.vue'
 import Claim from '@/views/ClaimList.vue'
-import Claimdetail from '@/views/ClaimDetail.vue'
+import Claimdetail2 from '@/views/ClaimDetail2.vue'
 import Login from '@/views/Login.vue'
 import MasterDocument from '@/views/MasterDocument.vue'
 import CrossCheckRulesView from '@/views/CrossCheckRulesView.vue'
@@ -54,7 +54,7 @@ const routes = [
   {
     path: '/admin/claims/:id',
     name: 'claim-detail',
-    component: Claimdetail,
+    component: Claimdetail2,
     meta: { requiresAuth: true }
   }, 
   {

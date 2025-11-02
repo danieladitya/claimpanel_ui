@@ -40,12 +40,10 @@
               <td>{{ row.claim_status }}</td>
               <td>
                 <!-- PERBAIKI: Emit event edit -->
-                <button @click="$emit('edit', row)" class="btn btn-sm">
-                      <PencilSquareIcon class="w-4 h-4" />
-                  </button>
-                   <button @click="$emit('delete', row.id)" class="btn btn-sm ">
-                      <TrashIcon class="w-4 h-4" />
-                  </button>
+                <RouterLink :to="{ name: 'claim-detail', params: { id: row.id } }">
+                  <DocumentCheckIcon class="w-4 h-4" />
+                </RouterLink>
+                   
               </td>
           </tr>
           </tbody>
@@ -79,7 +77,7 @@
 <script lang="ts" setup> 
 import { useClaims } from '@/composables/claims';
 import { onMounted } from 'vue';
-import { PencilSquareIcon, TrashIcon } from "@heroicons/vue/24/outline";
+import { PencilSquareIcon, DocumentCheckIcon } from "@heroicons/vue/24/outline";
 
 const props = defineProps({
   claims: {
