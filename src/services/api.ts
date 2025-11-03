@@ -18,6 +18,11 @@ api.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+      
+      // Jika Content-Type belum diset, default ke application/json
+      if (!config.headers['Content-Type']) {
+        config.headers['Content-Type'] = 'application/json';
+      }
     } catch (error) {
       console.error("Error in request interceptor:", error);
     }

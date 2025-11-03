@@ -1,274 +1,3 @@
-<script setup lang="ts">
-import { ref, watch, computed, onMounted } from 'vue';
-import api from '@/services/api'
-import { useRoute } from 'vue-router';
-import AdminLayout from '@/layouts/AdminLayout.vue';
-import { 
-  ArrowLeftIcon, 
-  UserIcon, 
-  CalendarIcon, 
-  DocumentTextIcon, 
-  IdentificationIcon,
-  BuildingLibraryIcon,
-  CreditCardIcon,
-  DocumentArrowDownIcon,
-  DocumentPlusIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  EyeIcon,
-  ClockIcon
-} from "@heroicons/vue/24/outline"
-
-const props = defineProps<{ claimId: string | null }>()
-const emit = defineEmits(['back'])
-
-const claimData = ref<any | null>(null)
-const loading = ref(false)
-const uploading = ref<string | null>(null)
-
-// Computed properties
-const claim = computed(() => claimData.value?.claim || null)
-const payors = computed(() => claimData.value?.payors || [])
-const primaryPayor = computed(() => payors.value.find((p: any) => p.is_primary) || payors.value[0])
-
-// Format status dengan badge
-const getStatusBadgeClass = (status: string) => {
-  const statusMap: { [key: string]: string } = {
-    'approved': 'bg-green-100 text-green-800 border-green-200',
-    'draft': 'bg-gray-100 text-gray-800 border-gray-200',
-    'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    'rejected': 'bg-red-100 text-red-800 border-red-200',
-    'processed': 'bg-blue-100 text-blue-800 border-blue-200',
-    'verified': 'bg-green-100 text-green-800 border-green-200',
-    'unverified': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    'missing': 'bg-red-100 text-red-800 border-red-200'
-  }
-  return statusMap[status?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200'
-}
-
-// Format payor type badge
-const getPayorTypeBadgeClass = (payorType: string) => {
-  const typeMap: { [key: string]: string } = {
-    'bpjs': 'bg-blue-100 text-blue-800 border-blue-200',
-    'asuransi': 'bg-purple-100 text-purple-800 border-purple-200',
-    'perusahaan': 'bg-orange-100 text-orange-800 border-orange-200',
-    'pribadi': 'bg-gray-100 text-gray-800 border-gray-200'
-  }
-  return typeMap[payorType?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200'
-}
-
-// Format currency
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(amount)
-}
-
-// Format date
-const formatDate = (dateString: string) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('id-ID', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
-
-// Format datetime
-const formatDateTime = (dateString: string) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
-
-// Format file size (dari bytes ke readable format)
-const formatFileSize = (bytes: number) => {
-  if (!bytes) return '-'
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(1024))
-  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i]
-}
-
-// Get documents untuk payor tertentu
-const getPayorDocuments = (payorId: string) => {
-  const payor = payors.value.find((p: any) => p.id === payorId)
-  return payor?.documents || []
-}
-
-// Get document stats
-const getDocumentStats = (payorId: string) => {
-  const documents = getPayorDocuments(payorId)
-  const totalRequired = documents.length // Asumsikan semua dokumen required
-  const totalUploaded = documents.filter((doc: any) => doc.file_path && doc.file_path !== '').length
-  const totalVerified = documents.filter((doc: any) => doc.is_result_merge === 1).length
-  
-  return {
-    totalRequired,
-    totalUploaded,
-    totalVerified,
-    progress: totalRequired > 0 ? Math.round((totalUploaded / totalRequired) * 100) : 0
-  }
-}
-
-// Get document status
-const getDocumentStatus = (document: any) => {
-  if (!document.file_path || document.file_path === '') return 'missing'
-  if (document.is_result_merge === 1) return 'verified'
-  return 'unverified'
-}
-
-// Get document status text
-const getDocumentStatusText = (document: any) => {
-  const status = getDocumentStatus(document)
-  const statusMap = {
-    'missing': 'Belum Upload',
-    'unverified': 'Menunggu Verifikasi',
-    'verified': 'Terverifikasi'
-  }
-  return statusMap[status] || 'Unknown'
-}
-
-// Download document
-const downloadDocument = async (payorId: string, document: any) => {
-  try {
-    console.log('Download document:', payorId, document)
-    
-    // Jika document memiliki file_path yang valid
-    if (document.file_path && document.file_path !== '') {
-      // Implement download logic berdasarkan file_path
-      const fileUrl = `http://127.0.0.1:8000/api/v1/claim/document/${document.id}/download`
-      window.open(fileUrl, '_blank')
-    } else {
-      alert('Dokumen belum tersedia untuk di-download')
-    }
-    
-  } catch (error) {
-    console.error('Download error:', error)
-    alert('Gagal mendownload dokumen')
-  }
-}
-
-// Preview document
-const previewDocument = (payorId: string, document: any) => {
-  console.log('Preview document:', payorId, document)
-  if (document.file_path && document.file_path !== '') {
-    // Implement preview logic here
-    const fileUrl = `http://127.0.0.1:8000/api/v1/claim/document/${document.id}/preview`
-    window.open(fileUrl, '_blank')
-  } else {
-    alert('Dokumen belum tersedia untuk di-preview')
-  }
-}
-
-// Upload document
-const uploadDocument = async (payorId: string, documentType: string) => {
-  uploading.value = payorId
-  try {
-    console.log('Upload document for payor:', payorId, documentType)
-    
-    // Implement upload logic here
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    // After upload, refresh data
-    if (props.claimId) {
-      await fetchClaimData(props.claimId)
-    }
-    
-    alert(`Document ${documentType} berhasil diupload`)
-  } catch (error) {
-    console.error('Upload error:', error)
-    alert('Gagal mengupload document')
-  } finally {
-    uploading.value = null
-  }
-}
-
-// Verify document
-const verifyDocument = async (payorId: string, documentId: string) => {
-  try {
-    console.log('Verify document:', payorId, documentId)
-    
-    // Implement verify logic here
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // After verification, refresh data
-    if (props.claimId) {
-      await fetchClaimData(props.claimId)
-    }
-    
-    alert('Document berhasil diverifikasi')
-  } catch (error) {
-    console.error('Verify error:', error)
-    alert('Gagal memverifikasi document')
-  }
-}
-
-// Reject document
-const rejectDocument = async (payorId: string, documentId: string) => {
-  try {
-    console.log('Reject document:', payorId, documentId)
-    
-    const reason = prompt('Alasan penolakan:')
-    if (!reason) return
-    
-    // Implement reject logic here
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // After rejection, refresh data
-    if (props.claimId) {
-      await fetchClaimData(props.claimId)
-    }
-    
-    alert('Document ditolak')
-  } catch (error) {
-    console.error('Reject error:', error)
-    alert('Gagal menolak document')
-  }
-}
-const route = useRoute()
-
-
-// ======= Lifecycle =======
-onMounted(() => {
-  const claimId = route.params.id
-  fetchClaimData(claimId)
-})
-
-async function fetchClaimData(id: any) {
-  try {
-    loading.value = true
-    const resp = await api.get(`/claim/${id}`)
-    if (resp.data.success) {
-      claimData.value = resp.data.data
-      console.log('Claim data dengan documents:', claimData.value)
-    }
-  } catch (e) {
-    console.error('Gagal ambil detail klaim:', e)
-    alert('Gagal memuat data klaim')
-  } finally {
-    loading.value = false
-  }
-}
-
-watch(
-  () => props.claimId,
-  async (id) => {
-    if (id) {
-      await fetchClaimData(id)
-    }
-  }, 
-  { immediate: true }
-)
-</script>
 
 <template>
   <AdminLayout>
@@ -577,8 +306,18 @@ watch(
                 </div>
               </div>
             </div>
+            <div>
+              <button
+            @click="FormUpload(payor.id)"
+            class="flex items-center btn btn-primary"
+        
+          >
+          <DocumentArrowDownIcon class="w-4 h-4" /> Upload Dokumen
+          </button>
+            </div>
           </div>
           <!-- List Dokumen -->
+          
           <div class="space-y-3">
             <div v-for="document in getPayorDocuments(payor.id)" :key="document.id" 
                  class="flex items-center justify-between p-4 transition-colors duration-200 border border-gray-200 rounded-lg hover:bg-gray-50">
@@ -617,41 +356,6 @@ watch(
                   </div>
                 </div>
               </div>
-
-              <!-- Actions -->
-              <div class="flex items-center space-x-2">
-                <button 
-                  v-if="document.uploaded"
-                  @click="downloadDocument(payor.id, document)"
-                  class="p-2 text-gray-400 transition-colors duration-200 rounded-lg hover:text-blue-600 hover:bg-blue-50"
-                  title="Download dokumen"
-                >
-                  <DocumentArrowDownIcon class="w-4 h-4" />
-                </button>
-                
-                <button 
-                  v-if="document.uploaded && !document.verified"
-                  @click="verifyDocument(payor.id, document.id)"
-                  class="px-3 py-1 text-sm text-white transition-colors duration-200 bg-green-600 rounded-lg hover:bg-green-700"
-                >
-                  Verifikasi
-                </button>
-                
-                <button 
-                  v-else-if="!document.uploaded"
-                  @click="uploadDocument(payor.id, document.document_type)"
-                  :disabled="uploading === payor.id"
-                  class="flex items-center px-3 py-1 space-x-1 text-sm text-white transition-colors duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <DocumentPlusIcon class="w-4 h-4" />
-                  <span>Upload</span>
-                </button>
-
-                <div v-if="document.verified" class="flex items-center space-x-1 text-green-600">
-                  <CheckCircleIcon class="w-4 h-4" />
-                  <span class="text-xs font-medium">Terverifikasi</span>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -659,13 +363,7 @@ watch(
           <div v-if="getPayorDocuments(payor.id).length === 0" class="py-8 text-center">
             <DocumentTextIcon class="w-12 h-12 mx-auto mb-3 text-gray-300" />
             <p class="text-gray-500">Belum ada dokumen yang diupload untuk payor ini</p>
-            <button 
-              @click="uploadDocument(payor.id, 'document')"
-              class="flex items-center px-4 py-2 mx-auto mt-3 space-x-2 text-white transition-colors duration-200 bg-blue-600 rounded-lg hover:bg-blue-700"
-            >
-              <DocumentPlusIcon class="w-4 h-4" />
-              <span>Upload Dokumen Pertama</span>
-            </button>
+           
           </div>
         </div>
 
@@ -696,6 +394,449 @@ watch(
         <DocumentTextIcon class="w-16 h-16 mx-auto mb-4 text-gray-300" />
         <p class="text-lg text-gray-500">Data klaim tidak ditemukan</p>
       </div>
-    
+      
+      <!-- Modal Upload Klaim Baru -->
+<BaseModal
+  :isOpen="isModalUploadOpen"
+  title="Tambah Dokumen Klaim Baru"
+  :fullscreen="false"
+  @close="handleModalUploadClose"
+>
+  <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+    <!-- Daftar file -->
+    <div class="col-span-1 p-4 bg-white rounded-lg shadow">
+      <h3 class="mb-3 font-semibold text-gray-700">Daftar File</h3>
+      <ul v-if="files.length > 0" class="space-y-2">
+        <li
+          v-for="(file, index) in files"
+          :key="index"
+          class="flex items-center justify-between p-2 bg-gray-100 rounded-lg"
+        >
+          <span class="text-sm text-gray-800 truncate">{{ file.name }}</span>
+          <button
+            @click="removeFile(index)"
+            class="text-sm text-red-500 hover:text-red-700"
+          >
+            ✕
+          </button>
+        </li>
+      </ul>
+      <p v-else class="text-sm text-gray-400">Belum ada file yang diunggah</p>
+    </div>
+
+    <!-- Upload -->
+    <div class="col-span-2 p-4 space-y-4 bg-white rounded-lg shadow">
+      <h3 class="mb-3 font-semibold text-gray-700">Upload Dokumen Klaim Baru</h3>
+ 
+
+      <!-- Dropzone -->
+      <div
+        class="w-full p-6 text-center border-2 border-dashed rounded-lg cursor-pointer"
+        :class="isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300'"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop="handleDrop"
+        @click="fileInput?.click()"
+      >
+        <p class="text-gray-500">Tarik & letakkan file di sini, atau klik untuk memilih</p>
+        <input ref="fileInput" type="file" multiple class="hidden" @change="handleFileSelect" />
+      </div>
+
+      <!-- Progress bar -->
+      <div v-if="uploadProgress > 0" class="w-full h-2 bg-gray-200 rounded-full">
+        <div
+          class="h-2 transition-all bg-blue-500 rounded-full"
+          :style="{ width: uploadProgress + '%' }"
+        ></div>
+      </div>
+    </div>
+  </div>
+</BaseModal>
+
+
 </AdminLayout>
 </template>
+
+<script setup lang="ts">
+import { ref, watch, computed, onMounted } from 'vue';
+import api from '@/services/api'
+import { useRoute } from 'vue-router';
+import AdminLayout from '@/layouts/AdminLayout.vue';
+import BaseModal from '@/components/ui/BaseModal.vue';;
+import IFileItem from '@/interface/File';
+import axios from 'axios';
+import { 
+  ArrowLeftIcon, 
+  UserIcon, 
+  CalendarIcon, 
+  DocumentTextIcon, 
+  IdentificationIcon,
+  BuildingLibraryIcon,
+  CreditCardIcon,
+  DocumentArrowDownIcon,
+  DocumentPlusIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  EyeIcon,
+  ClockIcon
+} from "@heroicons/vue/24/outline"
+const route = useRoute()
+
+
+/*UPLOAD MODAL*/
+const isModalUploadOpen = ref(false)
+const files = ref<IFileItem[]>([]) 
+const fileInput = ref<HTMLInputElement | null>(null)
+const isDragging = ref(false)
+const uploadProgress = ref<number>(0)
+const claim_payor_id = ref<string | null>(null)
+// Tutup modal
+function handleModalUploadClose() {
+  isModalUploadOpen.value = false
+  files.value = [] 
+  uploadProgress.value = 0
+   
+}
+
+// Pilih file (manual)
+function handleFileSelect(event: Event) {
+  
+  const target = event.target as HTMLInputElement
+  // if (!fileType.value || !selectedClaimId.value) {
+  //   alert('Pilih klaim dan jenis file dulu')
+  //   return
+  // }
+  if (target.files && target.files.length > 0) {
+    for (let i = 0; i < target.files.length; i++) {
+      const f = target.files[i]
+      files.value.push({ file: f, name: f.name})
+    }
+    uploadFiles()
+  }
+}
+// Drag & drop
+function handleDrop(e: DragEvent) {
+  e.preventDefault()
+  isDragging.value = false
+  // if (!fileType.value || !selectedClaimId.value) {
+  //   alert('Pilih klaim dan jenis file dulu')
+  //   return
+  // }
+  if (e.dataTransfer?.files?.length) {
+    for (let i = 0; i < e.dataTransfer.files.length; i++) {
+      const f = e.dataTransfer.files[i]
+      files.value.push({ file: f, name: f.name})
+    }
+    uploadFiles()
+  }
+}
+
+// Hapus file dari list
+function removeFile(index: number) {
+  files.value.splice(index, 1)
+}
+function  FormUpload(id : string) {
+  alert('Upload dokumen untuk payor ID: ' + id)
+  isModalUploadOpen.value = true
+  claim_payor_id.value = id
+}
+// Upload
+async function uploadFiles() {
+  if (files.value.length === 0) {
+    alert('Tidak ada file untuk diunggah')
+    return
+  }
+
+  const claimId = route.params.id
+  const formData = new FormData()
+
+  // Tambah ID klaim sekali saja
+  formData.append('id_claim', String(claimId))
+
+  // Tambah semua file
+  files.value.forEach((fileItem) => {
+    formData.append('files', fileItem.file)
+  })
+
+  try {
+    const resp = await api.post(`/claim/payor/${claim_payor_id.value}/upload`, formData, {
+      headers: { 
+        'Content-Type': 'multipart/form-data' // Ini akan dipertahankan
+      },
+      onUploadProgress: (e) => {
+        if (e.total) {
+          uploadProgress.value = Math.round((e.loaded * 100) / e.total)
+        }
+      }, 
+      timeout: 30000 // 30 detik timeout
+    }); 
+    if (resp.data.success) {
+       
+      alert('Dokumen berhasil diunggah')
+      // refresh klaim supaya dokumen baru langsung muncul
+      const claimId = route.params.id
+     await fetchClaimData(claimId)
+      handleModalUploadClose()
+    } else {
+      alert('Upload gagal: ' + (resp.data.message || 'Unknown error'))
+    }
+
+  } catch (error: any) {
+    console.error('Upload error:', error)
+    alert('Upload gagal: ' + (error.response?.data?.message || error.message))
+  } finally {
+    uploadProgress.value = 0
+    files.value = []
+  }
+}
+
+
+
+const props = defineProps<{ claimId: string | null }>()
+const emit = defineEmits(['back'])
+
+const claimData = ref<any | null>(null)
+const loading = ref(false)
+const uploading = ref<string | null>(null)
+
+// Computed properties
+const claim = computed(() => claimData.value?.claim || null)
+const payors = computed(() => claimData.value?.payors || [])
+const primaryPayor = computed(() => payors.value.find((p: any) => p.is_primary) || payors.value[0])
+
+// Format status dengan badge
+const getStatusBadgeClass = (status: string) => {
+  const statusMap: { [key: string]: string } = {
+    'approved': 'bg-green-100 text-green-800 border-green-200',
+    'draft': 'bg-gray-100 text-gray-800 border-gray-200',
+    'pending': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'rejected': 'bg-red-100 text-red-800 border-red-200',
+    'processed': 'bg-blue-100 text-blue-800 border-blue-200',
+    'verified': 'bg-green-100 text-green-800 border-green-200',
+    'unverified': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    'missing': 'bg-red-100 text-red-800 border-red-200'
+  }
+  return statusMap[status?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200'
+}
+
+// Format payor type badge
+const getPayorTypeBadgeClass = (payorType: string) => {
+  const typeMap: { [key: string]: string } = {
+    'bpjs': 'bg-blue-100 text-blue-800 border-blue-200',
+    'asuransi': 'bg-purple-100 text-purple-800 border-purple-200',
+    'perusahaan': 'bg-orange-100 text-orange-800 border-orange-200',
+    'pribadi': 'bg-gray-100 text-gray-800 border-gray-200'
+  }
+  return typeMap[payorType?.toLowerCase()] || 'bg-gray-100 text-gray-800 border-gray-200'
+}
+
+// Format currency
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(amount)
+}
+
+// Format date
+const formatDate = (dateString: string) => {
+  if (!dateString) return '-'
+  return new Date(dateString).toLocaleDateString('id-ID', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+// Format datetime
+const formatDateTime = (dateString: string) => {
+  if (!dateString) return '-'
+  return new Date(dateString).toLocaleDateString('id-ID', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// Format file size (dari bytes ke readable format)
+const formatFileSize = (bytes: number) => {
+  if (!bytes) return '-'
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(1024))
+  return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i]
+}
+
+// Get documents untuk payor tertentu
+const getPayorDocuments = (payorId: string) => {
+  const payor = payors.value.find((p: any) => p.id === payorId)
+  return payor?.documents || []
+}
+
+// Get document stats
+const getDocumentStats = (payorId: string) => {
+  const documents = getPayorDocuments(payorId)
+  const totalRequired = documents.length // Asumsikan semua dokumen required
+  const totalUploaded = documents.filter((doc: any) => doc.file_path && doc.file_path !== '').length
+  const totalVerified = documents.filter((doc: any) => doc.is_result_merge === 1).length
+  
+  return {
+    totalRequired,
+    totalUploaded,
+    totalVerified,
+    progress: totalRequired > 0 ? Math.round((totalUploaded / totalRequired) * 100) : 0
+  }
+}
+
+// Get document status
+const getDocumentStatus = (document: any) => {
+  if (!document.file_path || document.file_path === '') return 'missing'
+  if (document.is_result_merge === 1) return 'verified'
+  return 'unverified'
+}
+
+// Get document status text
+const getDocumentStatusText = (document: any) => {
+  const status = getDocumentStatus(document)
+  const statusMap = {
+    'missing': 'Belum Upload',
+    'unverified': 'Menunggu Verifikasi',
+    'verified': 'Terverifikasi'
+  }
+  return statusMap[status] || 'Unknown'
+}
+
+// Download document
+const downloadDocument = async (payorId: string, document: any) => {
+  try {
+    console.log('Download document:', payorId, document)
+    
+    // Jika document memiliki file_path yang valid
+    if (document.file_path && document.file_path !== '') {
+      // Implement download logic berdasarkan file_path
+      const fileUrl = `http://127.0.0.1:8000/api/v1/claim/document/${document.id}/download`
+      window.open(fileUrl, '_blank')
+    } else {
+      alert('Dokumen belum tersedia untuk di-download')
+    }
+    
+  } catch (error) {
+    console.error('Download error:', error)
+    alert('Gagal mendownload dokumen')
+  }
+}
+
+// Preview document
+const previewDocument = (payorId: string, document: any) => {
+  console.log('Preview document:', payorId, document)
+  if (document.file_path && document.file_path !== '') {
+    // Implement preview logic here
+    const fileUrl = `http://127.0.0.1:8000/api/v1/claim/document/${document.id}/preview`
+    window.open(fileUrl, '_blank')
+  } else {
+    alert('Dokumen belum tersedia untuk di-preview')
+  }
+}
+
+// Upload document
+const uploadDocument = async (payorId: string, documentType: string) => {
+  uploading.value = payorId
+  try {
+    console.log('Upload document for payor:', payorId, documentType)
+    
+    // Implement upload logic here
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    
+    // After upload, refresh data
+    if (props.claimId) {
+      await fetchClaimData(props.claimId)
+    }
+    
+    alert(`Document ${documentType} berhasil diupload`)
+  } catch (error) {
+    console.error('Upload error:', error)
+    alert('Gagal mengupload document')
+  } finally {
+    uploading.value = null
+  }
+}
+
+// Verify document
+const verifyDocument = async (payorId: string, documentId: string) => {
+  try {
+    console.log('Verify document:', payorId, documentId)
+    
+    // Implement verify logic here
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // After verification, refresh data
+    if (props.claimId) {
+      await fetchClaimData(props.claimId)
+    }
+    
+    alert('Document berhasil diverifikasi')
+  } catch (error) {
+    console.error('Verify error:', error)
+    alert('Gagal memverifikasi document')
+  }
+}
+
+// Reject document
+const rejectDocument = async (payorId: string, documentId: string) => {
+  try {
+    console.log('Reject document:', payorId, documentId)
+    
+    const reason = prompt('Alasan penolakan:')
+    if (!reason) return
+    
+    // Implement reject logic here
+    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    // After rejection, refresh data
+    if (props.claimId) {
+      await fetchClaimData(props.claimId)
+    }
+    
+    alert('Document ditolak')
+  } catch (error) {
+    console.error('Reject error:', error)
+    alert('Gagal menolak document')
+  }
+}
+
+// ======= Lifecycle =======
+onMounted(() => {
+  const claimId = route.params.id
+  fetchClaimData(claimId)
+})
+
+async function fetchClaimData(id: any) {
+  try {
+    loading.value = true
+    const resp = await api.get(`/claim/${id}`)
+    if (resp.data.success) {
+      claimData.value = resp.data.data
+      console.log('Claim data dengan documents:', claimData.value)
+    }
+  } catch (e) {
+    console.error('Gagal ambil detail klaim:', e)
+    alert('Gagal memuat data klaim')
+  } finally {
+    loading.value = false
+  }
+}
+
+watch(
+  () => props.claimId,
+  async (id) => {
+    if (id) {
+      await fetchClaimData(id)
+    }
+  }, 
+  { immediate: true }
+)
+</script>
