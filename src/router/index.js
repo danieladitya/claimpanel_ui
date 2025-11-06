@@ -9,7 +9,7 @@ import Login from '@/views/Login.vue'
 import MasterDocument from '@/views/MasterDocument.vue'
 import CrossCheckRulesView from '@/views/CrossCheckRulesView.vue'
 import MasterPayor from '@/views/MasterPayor.vue'
-
+import CrossCheckRulesCreateView from '@/views/CrossCheckRulesCreateView.vue'
 const routes = [
   
   {
@@ -67,6 +67,12 @@ const routes = [
     name: 'crosscheckrules',
     component: CrossCheckRulesView
   },
+  {
+    path: '/admin/settings/create/cross_check_rules',
+    name: 'crosscheckrules',
+    component: CrossCheckRulesCreateView
+  },
+  
   {
     path: '/admin/settings/master_payor',
     name: 'mst_payor',
