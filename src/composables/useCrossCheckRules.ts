@@ -1,8 +1,9 @@
 import { ref, computed, Ref } from 'vue'
 import { INITIAL_FILTERS, INITIAL_RULE } from '@/utils/constants'
 import api from '@/services/api';
-import { ICrossCheckRules } from '@/interface/ICrossCheckRules';
-import { ICrossCheckRulesListResponse } from '../interface/ICrossCheckRules';
+ import { ICrossCheckRulesListResponse,  CrossCheckRuleRequest, ICrossCheckRulesResponse, CrossCheckRulesListResponse } from '@/interface/ICrossCheckRules';
+import { ICrossCheckRules } from '../interface/ICrossCheckRules';
+import { Pagination } from '@/interface/IPagination';
  
 export interface Filters {
   rule_name: string;
@@ -15,9 +16,11 @@ export function useCrossCheckRules() {
   const loading = ref(false)
   const error = ref<string | null>(null)
   const respData = ref<ICrossCheckRulesListResponse>()
+  const pagination = ref<Pagination | null>(null);
+
   // Filter state
   const filters = ref<Filters>({ ...INITIAL_FILTERS })
-  const currentPage = ref(1)
+  // const currentPage = ref(1)
   const itemsPerPage = 10
 
   // Modal states
@@ -31,38 +34,38 @@ export function useCrossCheckRules() {
   const deletingRuleId = ref<string | null>(null)
 
   // Computed
-  const filteredRules = computed(() => {
-    let filtered = rules.value
+  // const filteredRules = computed(() => {
+  //   let filtered = rules.value
 
-    if (filters.value.rule_name) {
-      filtered = filtered.filter(rule => 
-        rule.rule_name.toLowerCase().includes(filters.value.rule_name.toLowerCase())
-      )
-    }
+  //   if (filters.value.rule_name) {
+  //     filtered = filtered.filter(rule => 
+  //       rule.rule_name.toLowerCase().includes(filters.value.rule_name.toLowerCase())
+  //     )
+  //   }
 
-    if (filters.value.trigger_code_system) {
-      filtered = filtered.filter(rule => 
-        rule.triger_gccode_system === filters.value.trigger_code_system
-      )
-    }
+  //   if (filters.value.trigger_code_system) {
+  //     filtered = filtered.filter(rule => 
+  //       rule.triger_gccode_system === filters.value.trigger_code_system
+  //     )
+  //   }
 
-    if (filters.value.active !== '') {
-      filtered = filtered.filter(rule => 
-        rule.is_active === (filters.value.active === 'true')
-      )
-    }
+  //   if (filters.value.active !== '') {
+  //     filtered = filtered.filter(rule => 
+  //       rule.is_active === (filters.value.active === 'true')
+  //     )
+  //   }
 
-    return filtered
-  })
+  //   return filtered
+  // })
 
-  const paginatedRules = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage
-    return filteredRules.value.slice(start, start + itemsPerPage)
-  })
+  // const paginatedRules = computed(() => {
+  //   const start = (currentPage.value - 1) * itemsPerPage
+  //   return filteredRules.value.slice(start, start + itemsPerPage)
+  // })
 
-  const totalPages = computed(() => 
-    Math.ceil(filteredRules.value.length / itemsPerPage)
-  )
+  // const totalPages = computed(() => 
+  //   Math.ceil(filteredRules.value.length / itemsPerPage)
+  // )
 
   // Methods
   function openCreateModal() {
@@ -94,38 +97,33 @@ export function useCrossCheckRules() {
     viewingRule.value = null
     deletingRuleId.value = null
   }
+  const fetchRules = async( page: number, perPage: number ) => {
+    loading.value = true;
+    error.value = null;
 
- 
-  async function fetchRules() {
-    loading.value = true
-    error.value = null
     try {
-      const response = await api.get('/cross-check-rules')
-      respData.value = response.data
-      if(respData.value){
-        rules.value = respData.value.data ?? []
-      }
-       
-    } catch (err : any) {
-      error.value = 'Failed to fetch rules: ' + (err.message || err)
-      console.error('Error fetching rules:', err)
+        const response = await api.get<CrossCheckRulesListResponse>('/rules', {
+            params: {
+                page,
+                per_page: perPage
+            }
+        });
+        rules.value = response.data.data.rules ;
+        pagination.value =response.data.data.pagination;
+    } catch (err) {
+        error.value = 'Failed to fetch master documents.';
     } finally {
-      loading.value = false
+        loading.value = false;
     }
-  }
-  async function createRule(ruleData: ICrossCheckRules) {
+}
+ 
+  
+  async function createRule(ruleData: CrossCheckRuleRequest) {
     try {
-      // Replace with actual API call
-      // const response = await api.post('/cross-check-rules', ruleData)
-      const newRule: ICrossCheckRules = {
-        ...ruleData,
-        id: Date.now().toString(),
-        created_date: new Date().toISOString(),
-       // updated_date: new Date().toISOString()
-      }
-      rules.value.push(newRule)
-      closeModals()
-      return newRule
+      const response = await api.post<ICrossCheckRulesResponse>('/rules', ruleData)
+      
+      return response.data
+     
     } catch (err) {
       error.value = 'Failed to create rule: ' + (err as Error).message
       throw err
@@ -169,6 +167,12 @@ export function useCrossCheckRules() {
     currentPage.value = 1
   }
 
+  const totalRules =  computed(()=> pagination.value ?.total_count || 0);
+  const currentPage = computed(()=> pagination.value ?.page || 1);
+  const totalPages = computed(()=> pagination.value ?.total_pages || 1);
+  const hasNext = computed(()=> pagination.value ?.has_next || false);
+  const hasPrevious = computed(() => pagination.value?.has_previous || false);
+
   return {
     // State
     rules,
@@ -186,10 +190,11 @@ export function useCrossCheckRules() {
     editingRule,
     viewingRule,
     deletingRuleId,
-    
-    // Computed
-    filteredRules,
-    paginatedRules,
+    pagination,
+    // // Computed
+    totalRules,
+    hasNext,
+    hasPrevious,
     totalPages,
     
     // Methods

@@ -12,7 +12,7 @@
         </div>
        
         <div v-else>
-          <table class="table w-full table-zebra">
+          <table class="table table-compact">
             <thead>
               <tr class="bg-gray-50">
                 <th class="font-semibold">Kode</th>
@@ -20,7 +20,7 @@
                 <th class="font-semibold">Tipe Penjamin</th>
                 <th class="font-semibold">Kode External</th>
                 <th class="font-semibold">Status</th>
-                <th class="font-semibold">Dibuat</th>
+               
                 <th class="font-semibold text-center"></th>
               </tr>
             </thead>
@@ -48,7 +48,7 @@
                 <td class="font-medium">{{ payor.payor_name }}</td>
                 <td>
                   <span class="badge badge-outline">
-                    {{ payor.gc_payor_type }}
+                    {{ payor.payor_type }}
                   </span>
                 </td>
                 <td>
@@ -58,18 +58,13 @@
                   <span v-else class="text-sm text-gray-400">-</span>
                 </td>
                 <td>
-                  <span 
-                    :class="[
-                      'badge',
-                      payor.is_active ? 'badge-success' : 'badge-error'
-                    ]"
-                  >
-                    {{ payor.is_active ? 'Aktif' : 'Nonaktif' }}
-                  </span>
+                  <span :class="['status', payor.is_active == 1 ? 'active' : 'inactive']">
+                    {{ payor.is_active ? 'Active' : 'Inactive' }}
+                   
+                    </span>
+                   
                 </td>
-                <td class="text-sm text-gray-500">
-                  {{ formatDate(payor.created_at) }}
-                </td>
+                
                 <td>
                   <div class="flex justify-center space-x-1">
                     <button 
@@ -102,7 +97,7 @@
             </button>
             
             <span class="page-info">
-              Page {{ currentPage }} of {{ totalPages }} ({{ totalDocuments }} total)
+              Page {{ currentPage }} of {{ totalPages }} ({{ totalData }} total)
             </span>
             
             <button 
@@ -160,11 +155,11 @@ const props = defineProps({
   const isLoading = props.loading || internalLoading.value;
 
 onMounted(() => {
-    fetchMasterPayors(1);
+    fetchMasterPayors(1, 50);
 });
 const goToPage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
-    fetchMasterPayors(page);
+    fetchMasterPayors(page, 50 );
   }
 };
   

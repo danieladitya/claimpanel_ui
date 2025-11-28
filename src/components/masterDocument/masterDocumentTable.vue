@@ -20,7 +20,7 @@
               <th>Nama Dokumen</th>
               <th>Kata Kunci</th>
               <th>Status</th>
-              <th>Dibuat</th>
+               
               <th></th>
             </tr>
           </thead>
@@ -33,15 +33,17 @@
                 <td>
                     <span :class="['status', doc.is_active == 1 ? 'active' : 'inactive']">
                     {{ doc.is_active ? 'Active' : 'Inactive' }}
+                   
                     </span>
                 </td>
-                <td>{{ formatDate(doc.created_at) }}</td>
+                 
                 <td>
                   <!-- PERBAIKI: Emit event edit -->
-                  <button @click="$emit('edit', doc)" class="btn btn-sm">
+                  <button @click="$emit('edit', doc)"    class="icon-bg-primary">
                         <PencilSquareIcon class="w-4 h-4" />
                     </button>
-                     <button @click="$emit('delete', doc.id)" class="btn btn-sm ">
+                    &nbsp;&nbsp;
+                     <button @click="$emit('delete', doc.id)"    class="icon-bg-danger">
                         <TrashIcon class="w-4 h-4" />
                     </button>
                 </td>
@@ -83,7 +85,8 @@ import { TrashIcon, EyeIcon, PencilSquareIcon } from '@heroicons/vue/24/outline'
 const props = defineProps({
   documents: {
     type: Array,
-    required: true
+    required: true,
+    default: () => [] // Tambahkan default value
   },
   loading: {
     type: Boolean,
@@ -106,6 +109,9 @@ const {
 } = useMasterDocument();
 // Combined loading state
 const isLoading = props.loading || internalLoading.value;
+async function fetchDocuments() {
+  await fetchMasterDocuments(currentPage.value, 10);
+}
 
 onMounted(() => {
     fetchMasterDocuments(1);
@@ -113,7 +119,7 @@ onMounted(() => {
 // Methods
 const goToPage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
-    fetchDocuments(page);
+    fetchDocuments();
   }
 };
  
@@ -136,21 +142,6 @@ const fetchData = () => {
   color: #d32f2f;
 }
 
-.status {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
-}
 
-.status.active {
-  background: #e8f5e8;
-  color: #2e7d32;
-}
-
-.status.inactive {
-  background: #ffebee;
-  color: #c62828;
-}
  
 </style>

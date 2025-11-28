@@ -15,7 +15,7 @@ export function useMasterPayor(){
         error.value = null;
 
         try {
-            const response = await api.get<MasterPayorListResponse>('/master_payor', {
+            const response = await api.get<MasterPayorListResponse>('/payor', {
                 params: {
                     page,
                     per_page: perPage
@@ -42,7 +42,7 @@ export function useMasterPayor(){
         saving.value = true;
         error.value = null;
         try {
-           const response = await api.post<MasterPayorResponse>('/master_payor/create', data);
+           const response = await api.post<MasterPayorResponse>('/payor/create', data);
            if(response.data.success){
              await fetchMasterPayors(currentPage.value, pagination.value ?.per_page || 10);
              return { success : true, data: response.data.data };
@@ -61,7 +61,7 @@ export function useMasterPayor(){
         error.value = null;
         
         try {
-            const response = await api.put<MasterPayorResponse>(`/master_payor/${id}`, formData);
+            const response = await api.put<MasterPayorResponse>(`/payor/${id}`, formData);
             
             if (response.data.success) {
                 await fetchMasterPayors(currentPage.value, pagination.value?.per_page || 10);
@@ -82,7 +82,7 @@ export function useMasterPayor(){
         error.value = null;
         
         try {
-            const response = await api.delete(`/master_payor/${id}`);
+            const response = await api.delete(`/payor/${id}`);
             
             if (response.data.success) {
                 await fetchMasterPayors(currentPage.value, pagination.value?.per_page || 10);

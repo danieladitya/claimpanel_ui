@@ -5,7 +5,9 @@ export interface MasterPayor {
     id: number;
     payor_code: string;
     payor_name: string;
+    
     gc_payor_type: string;
+    payor_type : string;
     code_external: string;
     is_active: number;
     is_deleted: number;
@@ -13,6 +15,9 @@ export interface MasterPayor {
     created_at: string;
     updated_by: number | null;
     updated_at: string | null;
+    documentCount ?: number;
+    category : string;
+    document_count : number;
   }
   
   export interface MasterPayorRequest {

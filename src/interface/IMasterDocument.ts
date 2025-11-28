@@ -12,13 +12,17 @@ export interface MasterDocument {
     created_by: number;
     updated_at?: string | null;
     updated_by?: number | null;
+    category : string;
+    mandatory: boolean;
+    description: string;
+
   }
   
 export interface MasterDocumentListResponse {
     success: boolean;
     message: string;
     data: {
-      document: MasterDocument[];
+      documents: MasterDocument[];
       pagination: Pagination;
     };
 }

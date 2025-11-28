@@ -11,8 +11,22 @@ export function useMasterDocument() {
     const error = ref<string | null>(null);
     const saving = ref(false);
 
-    const fetchMasterDocuments = async( page: number, perPage: number ) => {
-        loading.value = true;
+    const showDocumentSuggestions = ref(false)
+
+    const documentSuggestions  =   ref<MasterDocument[]>([])
+    const selectedDocumentInfo = ref<MasterDocument>()
+    const documentPagination = ref({
+      skip: 0,
+      limit: 20,
+      total: 0,
+      hasMore: false
+    })
+  
+    const searchingDocument = ref(false)
+    const documentSearchQuery = ref('')
+
+
+    const fetchMasterDocuments = async (page: number = 1, perPage: number = 10) => {        loading.value = true;
         error.value = null;
 
         try {
@@ -22,8 +36,7 @@ export function useMasterDocument() {
                     per_page: perPage
                 }
             });
-
-            documents.value = response.data.data.document;
+            documents.value = response.data.data.documents;
             pagination.value =response.data.data.pagination;
         } catch (err) {
             error.value = 'Failed to fetch master documents.';
@@ -97,6 +110,33 @@ export function useMasterDocument() {
             loading.value = false;
         }
     }
+    const searchDocument = async (keyword: string, page: number = 1, per_page: number = 10) => {
+        try {
+          const response = await api.get('/master_document/search', {
+            params: { keyword, page, per_page }
+          });
+          return response.data;
+        } catch (error) {
+          console.error('Error searching documents:', error);
+          throw error;
+        }
+      };
+       
+    const fetchAllDocuments = async () => {
+        loading.value = true;
+        try {
+          const response = await api.get('/master_document', {
+            params: { page: 1, per_page: 99 }
+          });
+       
+          documents.value = response.data.data.documents;
+          
+        } catch (err) {
+          console.error('Failed to load documents dropdown');
+        } finally {
+            loading.value = false;
+        }
+      };
 
     return {
         documents,
@@ -112,7 +152,17 @@ export function useMasterDocument() {
         createData,
         updateData,
         deleteData,
-        saving
+        saving, 
+
+        searchDocument,
+        showDocumentSuggestions,
+        documentSuggestions,
+        selectedDocumentInfo,
+        documentPagination,
+        searchingDocument,
+        documentSearchQuery, 
+        fetchAllDocuments
+
     }
 }
 

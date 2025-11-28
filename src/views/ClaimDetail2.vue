@@ -83,57 +83,17 @@
                 </div>
 
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">GC Status</p>
-                    <p class="font-mono text-sm text-gray-900">{{ claim.gcclaim_status }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">GC Service Type</p>
-                    <p class="font-mono text-sm text-gray-900">{{ claim.gcclaim_service_type }}</p>
-                  </div>
+                  <!-- <div>
+                    <p class="text-sm font-medium text-gray-500">Status</p>
+                    <p class="text-sm font-medium text-gray-900">{{ claim.claim_status }}</p>
+                  </div> -->
+                  <!-- <div>
+                    <p class="text-sm font-medium text-gray-500">Service Type</p>
+                    <p class="font-mono text-sm text-gray-900">{{ claim.claim_service_type }}</p>
+                  </div> -->
+                  
                 </div>
-
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Claim Member No</p>
-                    <p class="font-mono text-sm text-gray-900">{{ claim.claim_member_no }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Medical No</p>
-                    <p class="font-mono text-sm text-gray-900">{{ claim.medical_no }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Informasi Pasien -->
-            <div class="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-              <h2 class="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                <UserIcon class="w-5 h-5 mr-2 text-gray-600" />
-                Informasi Pasien
-              </h2>
-              <div class="space-y-4">
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Nama Pasien</p>
-                    <p class="text-sm font-medium text-gray-900">{{ claim.patient_name }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Jenis Kelamin</p>
-                    <p class="text-sm text-gray-900">{{ claim.gender }}</p>
-                  </div>
-                </div>
-                
-                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">Patient ID</p>
-                    <p class="font-mono text-sm text-gray-900">{{ claim.patient_id }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-500">GC Gender</p>
-                    <p class="font-mono text-sm text-gray-900">{{ claim.gcgender }}</p>
-                  </div>
-                </div>
+ 
               </div>
             </div>
           </div>
@@ -143,66 +103,57 @@
             <!-- Informasi Payor -->
             <div class="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
               <h2 class="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                <BuildingLibraryIcon class="w-5 h-5 mr-2 text-gray-600" />
-                Informasi Payor
+                <UserIcon class="w-5 h-5 mr-2 text-gray-600" />
+                Informasi Pasien
               </h2>
-              
-              <div v-if="payors.length > 0" class="space-y-4">
-                <div v-for="payor in payors" :key="payor.id" 
-                     class="p-4 border rounded-lg"
-                     :class="payor.is_primary ? 'border-blue-300 bg-blue-50' : 'border-gray-200'">
-                  
-                  <!-- Header Payor -->
-                  <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center space-x-2">
-                      <CreditCardIcon class="w-4 h-4 text-gray-500" />
-                      <span class="text-sm font-medium text-gray-900">{{ payor.payor_name }}</span>
-                    </div>
-                    <div class="flex space-x-2">
-                      <span 
-                        v-if="payor.is_primary"
-                        class="px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full"
-                      >
-                        Primary
-                      </span>
-                      <span 
-                        :class="['px-2 py-1 text-xs font-medium rounded-full border', getPayorTypeBadgeClass(payor.payor_type)]"
-                      >
-                        {{ payor.payor_type }}
-                      </span>
-                    </div>
+              <div class="space-y-4">
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <p class="text-sm font-medium text-gray-500">Medical No</p>
+                    <p class="font-mono text-sm text-gray-900">{{ claim.medical_no }}</p>
                   </div>
-
-                  <!-- Detail Payor -->
-                  <div class="space-y-2 text-sm">
-                    <div class="grid grid-cols-2 gap-2">
-                      <div>
-                        <p class="text-gray-500">Payor Code</p>
-                        <p class="font-mono text-gray-900">{{ payor.payor_code }}</p>
-                      </div>
-                      <div>
-                        <p class="text-gray-500">Payor ID</p>
-                        <p class="font-mono text-gray-900">{{ payor.payor_id }}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <p class="text-gray-500">GC Payor Type</p>
-                      <p class="font-mono text-gray-900">{{ payor.gc_payor_type }}</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                      <div>
-                        <p class="text-gray-500">COB</p>
-                        <p class="text-gray-900">{{ payor.is_cob ? 'Ya' : 'Tidak' }}</p>
-                      </div>
-                      <div>
-                        <p class="text-gray-500">Status</p>
-                        <p class="text-gray-900">{{ payor.is_primary ? 'Primary' : 'Secondary' }}</p>
-                      </div>
-                    </div>
-                    
-                    <!-- Document Stats -->
-                    <div class="pt-2 border-t border-gray-200">
-                      <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-gray-500">Member No</p>
+                    <p class="font-mono text-sm text-gray-900">{{ claim.claim_member_no }}</p>
+                  </div>
+                  
+                  </div>
+                <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <p class="text-sm font-medium text-gray-500">Nama Pasien</p>
+                    <p class="text-sm font-medium text-gray-900">{{ claim.patient_name }}</p>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-gray-500">Jenis Kelamin</p>
+                    <p class="text-sm text-gray-900">{{ claim.gender }}</p>
+                  </div>
+                  
+                </div>
+              </div>
+              
+                
+            </div>
+ 
+          </div>
+        </div>
+        <div class="row">
+              <div class="col-md-12">
+                
+                <table class="table table-compact">
+                  <thead>
+                      <tr>
+                        <th>Tipe Penjamin</th>
+                        <th>Penjamin</th>
+                        <th>Primary</th>
+                        <th>Status Kelengkapan</th>
+                        <th></th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr v-for="payor in payors" :key="payor.id" >
+                        <td>  {{ payor.payor_type }}</td>
+                          <td>   {{ payor.payor_name }}
+                            <div class="flex items-center justify-between">
                         <span class="text-gray-500">Dokumen:</span>
                         <span class="text-sm font-medium text-gray-900">
                           {{ getDocumentStats(payor.id).totalUploaded }}/{{ getDocumentStats(payor.id).totalRequired }}
@@ -214,50 +165,38 @@
                           :style="{ width: `${getDocumentStats(payor.id).progress}%` }"
                         ></div>
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+                          </td>
+                       
+                          <td> <span 
+                              v-if="payor.is_primary"
+                              class="px-2 py-1 text-xs font-medium text-blue-800 bg-blue-100 rounded-full"
+                            >
+                              Primary
+                            </span>
+                          </td>
+                          <td>
+                            <span :class="['status', payor.gc_validate_status == 'X005^003' ? 'inactive' : 'active']">
+                             {{  payor.validate_status }}
+                   
+                    </span>
 
-              <div v-else class="py-4 text-center">
-                <BuildingLibraryIcon class="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                <p class="text-sm text-gray-500">Tidak ada data payor</p>
-              </div>
-            </div>
-
-            <!-- Informasi Sistem -->
-            <div class="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-              <h2 class="flex items-center mb-4 text-lg font-semibold text-gray-900">
-                <IdentificationIcon class="w-5 h-5 mr-2 text-gray-600" />
-                Informasi Sistem
-              </h2>
-              <div class="space-y-3">
-                <div>
-                  <p class="text-sm font-medium text-gray-500">Dibuat Oleh</p>
-                  <p class="text-sm text-gray-900">User ID: {{ claim.created_by }}</p>
-                  <p class="text-xs text-gray-500">{{ formatDateTime(claim.created_at) }}</p>
-                </div>
-                
-                <div>
-                  <p class="text-sm font-medium text-gray-500">Diupdate Oleh</p>
-                  <p class="text-sm text-gray-900">
-                    {{ claim.update_by ? `User ID: ${claim.update_by}` : 'Belum pernah diupdate' }}
-                  </p>
-                  <p v-if="claim.update_date" class="text-xs text-gray-500">
-                    {{ formatDateTime(claim.update_date) }}
-                  </p>
-                </div>
-                
-                <div>
-                  <p class="text-sm font-medium text-gray-500">ID Record</p>
-                  <p class="font-mono text-sm text-gray-900 break-all">{{ claim.id }}</p>
-                </div>
+                            
+                          </td>
+                          <td>
+                            <button @click="GetValidation(payor.id)" class="icon-bg-success">    
+                              <CheckIcon class="w-4 h-4" />
+                            </button> &nbsp;
+                            &nbsp;
+                            <button v-if="payor.gc_validate_status == 'X005^005' " @click="handleMergeDocuments(payor.id)" class="icon-bg-success">Merge Document</button>
+                          </td>
+                      </tr>
+                  </tbody>
+               </table>
+               
               </div>
             </div>
-          </div>
-        </div>
-
-        <!-- Dokumen Persyaratan per Payor -->
+        
+<!-- Dokumen Persyaratan per Payor -->
         <div v-for="payor in payors" :key="`docs-${payor.id}`" class="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
           <div class="flex items-center justify-between mb-6">
             <div>
@@ -337,13 +276,9 @@
                 <!-- Document Info -->
                 <div class="flex-1">
                   <div class="flex items-center space-x-2">
-                    <p class="text-sm font-medium text-gray-900">{{ document.filename }}</p>
-                    <span v-if="document.required" class="px-2 py-1 text-xs font-medium text-red-800 bg-red-100 rounded-full">
-                      Wajib
-                    </span>
-                    <span v-else class="px-2 py-1 text-xs font-medium text-gray-800 bg-gray-100 rounded-full">
-                      Opsional
-                    </span>
+                     <p class="text-sm font-medium text-gray-900">{{ document.document_name }}</p>
+                    <button class="btn-icon" @click="downloadDocument(document)"><ArrowDownTrayIcon class="w-5 h-5 text-blue-500" /></button>
+                    
                   </div>
                   <p class="text-sm text-gray-600">{{ document.document_type }}</p>
                   <div class="flex items-center mt-1 space-x-4 text-xs text-gray-500">
@@ -366,27 +301,7 @@
            
           </div>
         </div>
-
-        <!-- Action Buttons -->
-        <div class="p-6 bg-white border border-gray-200 shadow-sm rounded-xl">
-          <div class="flex flex-wrap gap-3">
-            <button class="px-4 py-2 text-white transition-colors duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-              Edit Klaim
-            </button>
-            <button class="px-4 py-2 text-white transition-colors duration-200 bg-green-600 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
-              Validasi Semua
-            </button>
-            <button class="px-4 py-2 text-white transition-colors duration-200 bg-purple-600 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-              Kelola Payor
-            </button>
-            <button class="px-4 py-2 text-white transition-colors duration-200 bg-gray-600 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-              Print
-            </button>
-            <button class="px-4 py-2 text-white transition-colors duration-200 bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-              Hapus
-            </button>
-          </div>
-        </div>
+ 
       </div>
 
       <!-- Empty State -->
@@ -453,7 +368,61 @@
   </div>
 </BaseModal>
 
+  <!-- HASIL VALIDASI -->
+  <BaseModal
+  :isOpen="isModalOpen"
+  title="Hasil Validasi Dokumen"
+  :fullscreen="false"
+  @close="handleModalClose"
+  >
+  <div >
+ 
 
+<!-- Summary -->
+<div class="grid grid-cols-1 gap-4 mb-6 md:grid-cols-3">
+    <div class="p-4 border rounded-lg bg-gray-50">
+        <p class="text-sm text-gray-500">Dokumen Hilang</p>
+        <p class="text-2xl font-bold text-red-600">{{ validationClaimData?.missing_count }} Dokumen</p>
+    </div>
+
+    <div class="p-4 border rounded-lg bg-gray-50">
+        <p class="text-sm text-gray-500">Validasi Aturan</p>
+        <p class="text-2xl font-bold text-green-600">✔ Lolos</p>
+    </div>
+
+    <div class="p-4 border rounded-lg bg-gray-50">
+        <p class="text-sm text-gray-500">Status Klaim</p>
+        <p class="text-2xl font-bold text-red-600">
+      
+          {{ validationClaimData?.flag_document_success == 1 ? 'COMPLATE' : 'INCOMPLATE' }}
+          </p>
+    </div>
+</div>
+
+<!-- Missing Documents -->
+<div class="mb-6" v-if="validationClaimData?.flag_document_success == 0">
+    <h3 class="mb-2 font-semibold text-gray-700">Dokumen Belum Lengkap</h3>
+    <div class="space-y-3" v-for="doc in validationClaimData?.document_validation">
+        <div class="flex items-center justify-between p-3 m-2 border rounded-lg bg-red-50">
+            <span class="font-medium">{{ doc.document_name }}</span>
+            <span class="px-3 py-1 text-xs text-white bg-red-500 rounded-full">{{ doc.status }}</span>
+        </div>
+
+        
+    </div>
+</div>
+
+<!-- Actions Needed -->
+<div v-if="validationClaimData?.flag_document_success == 0">
+    <h3 class="mb-2 font-semibold text-gray-700" >Langkah yang Harus Dilakukan</h3>
+
+    <ul class="pl-5 space-y-1 text-gray-700 list-disc"  v-for="doc in validationClaimData?.actions_needed">
+        <li>Upload dokumen: <strong>{{ doc }}</strong></li>
+      
+    </ul>
+</div>
+</div>
+</BaseModal>
 </AdminLayout>
 </template>
 
@@ -465,6 +434,10 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import BaseModal from '@/components/ui/BaseModal.vue';;
 import IFileItem from '@/interface/File';
 import axios from 'axios';
+import { useValidationClaim } from '../composables/useValidationClaim';
+import { CheckIcon, ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
+import { async } from '../services/validationClaim.service';
+
 import { 
   ArrowLeftIcon, 
   UserIcon, 
@@ -482,6 +455,37 @@ import {
 } from "@heroicons/vue/24/outline"
 const route = useRoute()
 
+
+const isModalOpen = ref(false) 
+function handleModalClose() {
+  isModalOpen.value = false
+  const claimId = route.params.id
+
+  fetchClaimData(claimId)
+
+}
+
+const {
+  validationClaimData,
+  mergeDocumentData,
+   error,
+  getValidation,
+  processMergeDocument,
+  downloadMergedDocument,
+  reset
+} = useValidationClaim();
+
+
+async function GetValidation(id: string) {
+    getValidation(id)
+    isModalOpen.value = true
+
+   
+}
+const handleMergeDocuments = async (id: string) => {
+
+  await processMergeDocument(id);
+};
 
 /*UPLOAD MODAL*/
 const isModalUploadOpen = ref(false)
@@ -536,7 +540,6 @@ function removeFile(index: number) {
   files.value.splice(index, 1)
 }
 function  FormUpload(id : string) {
-  alert('Upload dokumen untuk payor ID: ' + id)
   isModalUploadOpen.value = true
   claim_payor_id.value = id
 }
@@ -711,25 +714,27 @@ const getDocumentStatusText = (document: any) => {
 }
 
 // Download document
-const downloadDocument = async (payorId: string, document: any) => {
+// Download document
+const downloadDocument = async (document: any) => {
   try {
-    console.log('Download document:', payorId, document)
-    
-    // Jika document memiliki file_path yang valid
     if (document.file_path && document.file_path !== '') {
-      // Implement download logic berdasarkan file_path
-      const fileUrl = `http://127.0.0.1:8000/api/v1/claim/document/${document.id}/download`
-      window.open(fileUrl, '_blank')
+      const fileUrl = `http://127.0.0.1:8000/api/v1/claim/document/${document.id}`;
+      
+      // Untuk download
+      window.open(fileUrl, '_blank');
+      
+      // Atau untuk preview di tab baru
+      // const previewUrl = `http://127.0.0.1:8000/api/v1/claim/document/${document.id}/preview`;
+      // window.open(previewUrl, '_blank');
     } else {
-      alert('Dokumen belum tersedia untuk di-download')
+      alert('Dokumen belum tersedia untuk di-download');
     }
-    
   } catch (error) {
-    console.error('Download error:', error)
-    alert('Gagal mendownload dokumen')
+    console.error('Download error:', error);
+    alert('Gagal mendownload dokumen');
   }
 }
-
+ 
 // Preview document
 const previewDocument = (payorId: string, document: any) => {
   console.log('Preview document:', payorId, document)

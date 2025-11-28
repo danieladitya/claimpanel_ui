@@ -10,6 +10,8 @@ import MasterDocument from '@/views/MasterDocument.vue'
 import CrossCheckRulesView from '@/views/CrossCheckRulesView.vue'
 import MasterPayor from '@/views/MasterPayor.vue'
 import CrossCheckRulesCreateView from '@/views/CrossCheckRulesCreateView.vue'
+import ClaimDocumentMapping from '@/views/ClaimDocumentMapping.vue'
+import PayorDocumentMapping from '@/views/PayorDocumentMapping.vue'
 const routes = [
   
   {
@@ -63,13 +65,13 @@ const routes = [
     component: MasterDocument
   }, 
   {
-    path: '/admin/settings/cross_check_rules',
+    path: '/admin/settings/rule',
     name: 'crosscheckrules',
     component: CrossCheckRulesView
   },
   {
-    path: '/admin/settings/create/cross_check_rules',
-    name: 'crosscheckrules',
+    path: '/admin/settings/rule/create',
+    name: 'create_rule',
     component: CrossCheckRulesCreateView
   },
   
@@ -77,6 +79,18 @@ const routes = [
     path: '/admin/settings/master_payor',
     name: 'mst_payor',
     component: MasterPayor
+  },
+  
+  {
+    path: '/admin/settings/payor_document',
+    name: 'payor_document',
+    component : PayorDocumentMapping
+  },
+  
+  {
+    path: '/admin/settings/mapping_payor_document',
+    name: 'mapping_payor_document',
+    component : PayorDocumentMapping
   },
 ]
 

@@ -133,7 +133,8 @@ export default {
             { name: 'User', path: '/admin/settings/users' },
             { name: 'Dokumen Klaim', path: '/admin/settings/master_document' },
             { name: 'Penjamin Bayar', path: '/admin/settings/master_payor' },
-            {name: 'Aturan Cross Check', path: '/admin/settings/cross_check_rules' }
+            {name: 'Pengaturan Klaim', path: '/admin/settings/rule' },
+            {name: 'Pengaturan Dokumen', path: '/admin/settings/payor_document' }
           ]
         }
       ]

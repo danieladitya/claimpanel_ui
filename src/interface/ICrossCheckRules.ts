@@ -1,4 +1,5 @@
 import { IBaseListResponse, IBaseResponse } from "./IBaseResponse"
+import { Pagination } from "./IPagination";
 
 
 interface ICrossCheckRules {
@@ -47,10 +48,18 @@ interface ICrossCheckRules {
  
   export interface IConditionJson {}
   
-  
+ 
+export interface CrossCheckRulesListResponse {
+  success: boolean;
+  message: string;
+  data: {
+    rules: ICrossCheckRules[];
+    pagination: Pagination;
+  };
+} 
 // Specific response interfaces
-export interface ICrossCheckRulesListResponse 
-extends IBaseListResponse<ICrossCheckRules> {}
+// export interface ICrossCheckRulesListResponse 
+// extends IBaseListResponse<ICrossCheckRules> {}
 
 export interface ICrossCheckRulesResponse 
 extends IBaseResponse<ICrossCheckRules> {}
@@ -69,6 +78,7 @@ export interface CrossCheckRuleRequest {
   id?: string;
   rule_name?: string;
   rule_description?: string;
+  gc_rule_type : string;
   gc_required_type?: string;
   trigger_code_id?: string;
   triger_gccode_system?: string;
