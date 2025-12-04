@@ -114,3 +114,30 @@ export function formatDate(
   export function formatDateForDetail(dateString: string): string {
     return formatDateTime(dateString);
   }
+
+  // ===================== GENERATE BULAN ===================== //
+  export function generateMonthOptions(monthsBack = 24) : MonthOption[] {
+    const now = new Date();
+    const monthOptions: { value: string; label: string }[] = [];
+  
+    for (let i = 0; i < monthsBack; i++) {
+      const year = now.getFullYear();
+      const month = (now.getMonth() + 1).toString().padStart(2, "0");
+  
+      const label = now.toLocaleDateString("id-ID", {
+        month: "long",
+        year: "numeric"
+      });
+  
+      monthOptions.push({
+        value: `${year}-${month}`,
+        label
+      });
+  
+      // mundur 1 bulan
+      now.setMonth(now.getMonth() - 1);
+    }
+  
+    return monthOptions;
+  }
+  

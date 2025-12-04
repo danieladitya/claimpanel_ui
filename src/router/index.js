@@ -12,6 +12,7 @@ import MasterPayor from '@/views/MasterPayor.vue'
 import CrossCheckRulesCreateView from '@/views/CrossCheckRulesCreateView.vue'
 import ClaimDocumentMapping from '@/views/ClaimDocumentMapping.vue'
 import PayorDocumentMapping from '@/views/PayorDocumentMapping.vue'
+import ClaimDocumentForm from '@/views/ClaimDocumentForm.vue'
 const routes = [
   
   {
@@ -92,6 +93,11 @@ const routes = [
     name: 'mapping_payor_document',
     component : PayorDocumentMapping
   },
+  {
+    path :'/admin/claim/ready', 
+    name : 'claim_document_form', 
+    component : ClaimDocumentForm
+  }
 ]
 
 const router = createRouter({
