@@ -150,7 +150,7 @@ import { useMasterPayor } from '../composables/masterPayor';
 import { generateMonthOptions } from "@/utils/dataHelper";
 import AdminLayout from '@/layouts/AdminLayout.vue';
 const {payors, fetchMasterPayors} = useMasterPayor()
-const { claimDocumentData, loading, error, fetchClaimDocument, resetDocuments } =
+const { claimDocumentData, loading, error, fetchClaimDocument, resetDocuments, finalDownloadDocumentClaim } =
   useClaimDocument();
 const monthOptions = ref<MonthOption[]>([]);
 // Local states
@@ -203,23 +203,24 @@ function downloadDocument(doc: any) {
 
 // === DOWNLOAD ZIP ===
 async function downloadAll() {
-  downloading.value = true;
+  finalDownloadDocumentClaim(filters.value.month, filters.value.payorCode);
+  //downloading.value = true;
 
-  try {
-    const url = `http://127.0.0.1:8000/api/v1/claim_document/download-zip?month=${filters.value.month}&payor_code=${filters.value.payorCode}`;
+  // try {
+  //   const url = `http://127.0.0.1:8000/api/v1/claim_document/download-zip?month=${filters.value.month}&payor_code=${filters.value.payorCode}`;
 
-    const res = await fetch(url);
-    const blob = await res.blob();
+  //   const res = await fetch(url);
+  //   const blob = await res.blob();
 
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = `documents_${filters.value.month}_${filters.value.payorCode}.zip`;
-    link.click();
-  } catch (err) {
-    console.error("Error download ZIP:", err);
-  } finally {
-    downloading.value = false;
-  }
+  //   const link = document.createElement("a");
+  //   link.href = URL.createObjectURL(blob);
+  //   link.download = `documents_${filters.value.month}_${filters.value.payorCode}.zip`;
+  //   link.click();
+  // } catch (err) {
+  //   console.error("Error download ZIP:", err);
+  // } finally {
+  //   downloading.value = false;
+  // }
 }
 </script>
 

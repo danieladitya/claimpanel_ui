@@ -1,6 +1,6 @@
 // composables/useClaimDocument.ts
 import { ref } from "vue";
-import { getClaimDocumentReady } from "@/services/claim_document_service";
+import { downloadAllZip, getClaimDocumentReady } from "@/services/claim_document_service";
 import type { ClaimDocument } from "@/types/ClaimDocument";
 
 export function useClaimDocument() {
@@ -29,11 +29,17 @@ export function useClaimDocument() {
     error.value = null;
   }
 
+  async function finalDownloadDocumentClaim(month: string, payor_code: string) {
+    // This function can be implemented here if needed, or imported from the service
+    await downloadAllZip(month, payor_code);
+  }
+
   return {
     claimDocumentData,
     loading,
     error,
     fetchClaimDocument,
-    resetDocuments
+    resetDocuments,
+    finalDownloadDocumentClaim
   };
 }

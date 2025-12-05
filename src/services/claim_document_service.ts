@@ -24,7 +24,7 @@ export async function getClaimDocumentReady(month: string, payor_code: string){
       payor_code : payor_code
     }
      const response = await api.get<ClaimDocumentsResponse>(
-      `/claim_document/ready-merge?month=$mont`, {
+      `/claim_document/ready-merge`, {
         params : param
       }
      )
@@ -35,4 +35,23 @@ export async function getClaimDocumentReady(month: string, payor_code: string){
     throw error;
   }
 }
- 
+export async function downloadAllZip(month: string, payor_code: string) {
+  try {
+    const response = await api.post(
+      `/claim_document/download-all`,
+      null,
+      { params: { month, payor_code }, responseType: "blob" }
+    );
+
+    const blob = new Blob([response.data], { type: "application/zip" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `claim_documents_${month}.zip`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error("Error downloading ZIP:", error);
+  }
+}
