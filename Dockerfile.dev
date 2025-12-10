@@ -1,0 +1,16 @@
+FROM node:20.19.0
+
+WORKDIR /app
+
+# Copy hanya file dependency dulu (lebih cepat & cache)
+COPY package*.json ./
+
+# Install dependencies (termasuk Vite)
+RUN npm install --legacy-peer-deps
+
+# Baru copy seluruh source code frontend
+COPY . .
+
+EXPOSE 5173
+
+CMD ["npm", "run", "dev", "--", "--host"]
